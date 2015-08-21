@@ -1,11 +1,11 @@
-// Enemies our player must avoid
+var gameState = true;
 var Enemy = function(x,y, speedMulti) {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
 
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
-    this.sprite = 'images/enemy-bug.png';
+    this.sprite = 'images/enemy-alien.png';
     this.x = x;
     this.y = y;
     this.speedMulti = speedMulti;
@@ -17,11 +17,17 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-    if(this.x >= 562) {
-        this.x = -70;
-    }
-    this.x = this.x + (dt*this.speedMulti);
-    this.y = this.y;
+    if(gameState === true) {
+        if(this.x >= 562) {
+            this.x = -70;
+        }
+        this.x = this.x + (dt*this.speedMulti);
+        this.y = this.y;
+        } else {
+           this.x = this.x;
+           this.y = this.y;
+        }
+
 };
 
 // Draw the enemy on the screen, required method for game
@@ -29,48 +35,48 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
-Enemy.prototype.reset = function() {
-
-};
-
-
 
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
 
-
-var Player = function(x, y, points) {
-    this.sprite = 'images/char-boy.png';
+var Player = function(x, y, points, lives) {
+    this.sprite = 'images/char-space-naut.png';
     this.x = x;
     this.y = y;
     this.points = points;
+    this.lives = lives;
 };
 
 Player.prototype.update = function(xMod, yMod) {
-    if (xMod){
+    if( gameState === true ) {
+        if (xMod){
         if( (this.x === 0 && xMod < 0) || (this.x === 400 && xMod > 0) ) {
             this.x === this.x;
         } else {
             this.x = this.x + xMod;
+            }
         }
-    }
-    if (yMod) {
-        if( (this.y === 412 && yMod > 0) || (this.y === -13 && yMod < 0) ){
-            this.y === this.y;
-        } else {
-            this.y = this.y + yMod;
+        if (yMod) {
+            if( (this.y === 412 && yMod > 0) || (this.y === -13 && yMod < 0) ){
+                this.y === this.y;
+            } else {
+                this.y = this.y + yMod;
+            }
         }
+
+        // Check for a collision with enemies
+        player.collisiionDectect();
+
+        // Check player position to see if they achived the top row
+        if (yMod && this.y === -13) {
+            player.score();
+            player.reset();
+        }
+    } else {
+        player.render();
     }
 
-    // Check for a collision with enemies
-    player.collisiionDectect();
-
-    // Check player position to see if they achived the top row
-    if (yMod && this.y === -13) {
-        player.score();
-        player.reset();
-    }
 };
 
 Player.prototype.render = function() {
@@ -102,6 +108,44 @@ Player.prototype.handleInput = function(keyPress) {
     }
 };
 
+Player.prototype.resetGameVars = function() {
+    this.points = 0;
+    this.lives = 3;
+    this.x = 200;
+    this.y = 412;
+    // Rewrite the score back to zero
+    var scoreSpan = document.getElementById('theScore');
+    scoreSpan.innerHTML = this.points;
+    // Rewrite lives to 3
+    var livesSpan = document.getElementById('livesRemaining');
+    livesSpan.innerHTML = this.lives;
+};
+
+Player.prototype.replay = function() {
+    var newDiv = document.createElement('div');
+    newDiv.setAttribute('id', 'restartButton');
+    var newContent = document.createTextNode('RESTART GAME');
+    newDiv.appendChild(newContent); //add the text node to the newly created div.
+
+    var livesDiv = document.getElementById("livesHolder");
+    document.body.insertBefore(newDiv, livesDiv.nextSibling);
+};
+
+Player.prototype.gameOn = function() {
+    gameState = !gameState;
+};
+
+Player.prototype.loseLife = function() {
+    this.lives -= 1;
+    var livesSpan = document.getElementById('livesRemaining');
+    livesSpan.innerHTML = this.lives;
+    if(player.lives === 0) {
+        player.resetGameVars();
+        gameState = false;
+        player.replay();
+    }
+};
+
 Player.prototype.score = function() {
     this.points +=50;
     var scoreSpan = document.getElementById('theScore');
@@ -111,7 +155,7 @@ Player.prototype.score = function() {
 Player.prototype.collisiionDectect = function() {
     for(var i = 0; i < allEnemies.length; i++) {
         if ( ( Math.round( allEnemies[i].x) >= this.x -70 &&  Math.round( allEnemies[i].x) <= this.x + 70) &&  (this.y === Math.round( allEnemies[i].y) + 12 ) ) {
-            console.log("BOOYEAH!!");// TESTING
+            player.loseLife();
             player.reset();
         }
     }
@@ -157,7 +201,7 @@ var allEnemies = [
         enemy5
     ];
 
-var player = new Player(200,412, 0);
+var player = new Player(200,412, 0, 3);
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
@@ -170,3 +214,11 @@ document.addEventListener('keyup', function(e) {
     };
     player.handleInput(allowedKeys[e.keyCode]);
 });
+
+// Set up listener for HTML button click
+/*
+var restartButton = document.getElementById('restartButton');
+restartButton.addEventListener('click', function(e) {
+    player.resetGameVars();
+});
+*/
