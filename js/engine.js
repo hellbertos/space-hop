@@ -161,6 +161,7 @@ var Engine = (function(global) {
      */
     function reset() {
         // noop
+        var resetScoreToZero = document.getElementById('theScore').innerHTML = 0;
     }
 
     /* Go ahead and load all of the images we know we're going to need to
