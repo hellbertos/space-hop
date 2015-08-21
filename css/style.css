@@ -1,3 +1,35 @@
 body {
     text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 22px;
+    background-color: #1f1f1f;
+    color: #999;
 }
+
+#main {
+	width: 505px;
+	margin: 0 auto;
+}
+canvas {
+	margin: 0 auto;
+}
+#infoRow {
+	display: flex;
+	width: inherit;
+}
+#scoreHolder {
+	text-align: left;
+	width: 50%
+}
+#theScore {
+	color: #039ec3;
+}
+
+#livesHolder {
+	text-align: right;
+	width: 50%
+}
+#livesRemaining {
+	color: #00da00;
+}
+
