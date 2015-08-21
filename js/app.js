@@ -40,10 +40,11 @@ Enemy.prototype.reset = function() {
 // a handleInput() method.
 
 
-var Player = function(x, y) {
+var Player = function(x, y, points) {
     this.sprite = 'images/char-boy.png';
     this.x = x;
     this.y = y;
+    this.points = points;
 };
 
 Player.prototype.update = function(xMod, yMod) {
@@ -64,6 +65,8 @@ Player.prototype.update = function(xMod, yMod) {
 
     // Check for a collision with enemies
     player.collisiionDectect();
+
+    // Check player position to see if they achived the top row
     if (yMod && this.y === -13) {
         player.score();
         player.reset();
@@ -100,7 +103,9 @@ Player.prototype.handleInput = function(keyPress) {
 };
 
 Player.prototype.score = function() {
-    console.log("SCORE BIZZYNASTERS!!");
+    this.points +=50;
+    var scoreSpan = document.getElementById('theScore');
+    scoreSpan.innerHTML = this.points;
 };
 
 Player.prototype.collisiionDectect = function() {
@@ -152,7 +157,7 @@ var allEnemies = [
         enemy5
     ];
 
-var player = new Player(200,412);
+var player = new Player(200,412, 0);
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
