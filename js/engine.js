@@ -108,12 +108,12 @@ var Engine = (function(global) {
          * for that particular row of the game level.
          */
         var rowImages = [
-                'images/water-block.png',   // Top row is water
-                'images/stone-block.png',   // Row 1 of 3 of stone
-                'images/stone-block.png',   // Row 2 of 3 of stone
-                'images/stone-block.png',   // Row 3 of 3 of stone
-                'images/grass-block.png',   // Row 1 of 2 of grass
-                'images/grass-block.png'    // Row 2 of 2 of grass
+                'images/station-block.png',   // Top row is space station
+                'images/space-block.png',   // Row 1 of 3 of space
+                'images/space-block.png',   // Row 2 of 3 of space
+                'images/space-block.png',   // Row 3 of 3 of space
+                'images/ship-block.png',   // Row 1 of 2 of ship
+                'images/ship-block.png'    // Row 2 of 2 of ship
             ],
             numRows = 6,
             numCols = 5,
@@ -161,7 +161,8 @@ var Engine = (function(global) {
      */
     function reset() {
         // noop
-        var resetScoreToZero = document.getElementById('theScore').innerHTML = 0;
+        var setScoreToZero = document.getElementById('theScore').innerHTML = 0;
+        var setLivesToThree = document.getElementById('livesRemaining').innerHTML = 3;
     }
 
     /* Go ahead and load all of the images we know we're going to need to
@@ -169,11 +170,11 @@ var Engine = (function(global) {
      * all of these images are properly loaded our game will start.
      */
     Resources.load([
-        'images/stone-block.png',
-        'images/water-block.png',
-        'images/grass-block.png',
-        'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/station-block.png',
+        'images/space-block.png',
+        'images/ship-block.png',
+        'images/enemy-alien.png',
+        'images/char-space-naut.png'
     ]);
     Resources.onReady(init);
 
