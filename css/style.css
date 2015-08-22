@@ -1,7 +1,7 @@
 body {
     text-align: center;
     font-family: 'Orbitron', sans-serif;
-    font-size: 22px;
+    font-size: 20px;
     background-color: #1f1f1f;
     color: #999;
 }
@@ -9,27 +9,53 @@ body {
 #main {
 	width: 505px;
 	margin: 0 auto;
+	display: flex;
 }
+
 canvas {
 	margin: 0 auto;
 }
+
 #infoRow {
 	display: flex;
 	width: inherit;
 }
+
 #scoreHolder {
 	text-align: left;
-	width: 50%
+	width: 30%
 }
+#hiScoreHolder {
+	text-align: center;
+	width: 45%;
+	color: #ffffff;
+}
+
 #theScore {
 	color: #039ec3;
+	min-width: 22px;
 }
 
 #livesHolder {
 	text-align: right;
-	width: 50%
+	width: 25%
 }
+
 #livesRemaining {
 	color: #00da00;
 }
 
+#restartContain {
+	height: 22px;
+	padding-top: 20px;
+}
+
+#button {
+	padding: 8px;
+	border-radius: 4px;
+	background-color: #525f6f;
+	border: 2px solid #6387b3;
+	color: #0dd0ff;
+	text-shadow: 2px 2px 3px rgba(0,0,0,.7);
+	cursor: pointer;
+}
