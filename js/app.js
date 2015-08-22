@@ -46,6 +46,7 @@ var Player = function(x, y, points, lives) {
     this.y = y;
     this.points = points;
     this.lives = lives;
+    this.hiScore = 0;
 };
 
 Player.prototype.update = function(xMod, yMod) {
@@ -108,39 +109,55 @@ Player.prototype.handleInput = function(keyPress) {
     }
 };
 
+// Rewrite the the starting values of score and lives to
+// display in browser then call gameOn() to reset game state
+// to true which un-freezes the game
 Player.prototype.resetGameVars = function() {
     this.points = 0;
     this.lives = 3;
     this.x = 200;
     this.y = 412;
-    // Rewrite the score back to zero
+
     var scoreSpan = document.getElementById('theScore');
     scoreSpan.innerHTML = this.points;
-    // Rewrite lives to 3
+
     var livesSpan = document.getElementById('livesRemaining');
     livesSpan.innerHTML = this.lives;
+
+    player.gameOn();
 };
 
+// Add a restart button to the dom then listen for click
+// to reset game variables and fire it back up
 Player.prototype.replay = function() {
-    var newDiv = document.createElement('div');
-    newDiv.setAttribute('id', 'restartButton');
-    var newContent = document.createTextNode('RESTART GAME');
-    newDiv.appendChild(newContent); //add the text node to the newly created div.
+    var refireButton = document.getElementById('restartContain');
+    refireButton.innerHTML='<span id="button">REPLAY</span>';
 
-    var livesDiv = document.getElementById("livesHolder");
-    document.body.insertBefore(newDiv, livesDiv.nextSibling);
+    var restartButton = document.getElementById('restartContain');
+    restartButton.addEventListener('click', function(e) {
+            player.resetGameVars();
+        });
 };
 
+// Remove the restart button then un-freeze the game
 Player.prototype.gameOn = function() {
+    var removeButton = document.getElementById('button');
+    removeButton.parentNode.removeChild(removeButton);
     gameState = !gameState;
 };
 
+// Remove one life value and for game end; set High Score if applicable
 Player.prototype.loseLife = function() {
     this.lives -= 1;
     var livesSpan = document.getElementById('livesRemaining');
     livesSpan.innerHTML = this.lives;
     if(player.lives === 0) {
-        player.resetGameVars();
+        // Check for high score and set if necessary
+        if(this.points > this.hiScore) {
+            this.hiScore = this.points;
+            var hiScoreSpan = document.getElementById('hiScore');
+            hiScoreSpan.innerHTML = this.hiScore;
+        }
         gameState = false;
         player.replay();
     }
@@ -152,6 +169,8 @@ Player.prototype.score = function() {
     scoreSpan.innerHTML = this.points;
 };
 
+// Check for a collision between player and enemy.
+// Uses a range of -70 to +70 to account for the approximate width of the enemy
 Player.prototype.collisiionDectect = function() {
     for(var i = 0; i < allEnemies.length; i++) {
         if ( ( Math.round( allEnemies[i].x) >= this.x -70 &&  Math.round( allEnemies[i].x) <= this.x + 70) &&  (this.y === Math.round( allEnemies[i].y) + 12 ) ) {
@@ -161,6 +180,7 @@ Player.prototype.collisiionDectect = function() {
     }
 };
 
+// TODO: hook up this Game Over Method!!!!
 Player.prototype.gameOver = function() {
     ctx.font = "50px Impact";
     ctx.fillStyle = "#ffffff";
@@ -171,6 +191,7 @@ Player.prototype.gameOver = function() {
     ctx.strokeText("GAME OVER!!",260,300);
 };
 
+// Redraws player at starting tile when player collides with an enemy
 Player.prototype.reset = function() {
     this.x = 200;
     this.y = 412;
@@ -186,11 +207,11 @@ var enemy4 = new Enemy(-100, 145, 60);
 var enemy5 = new Enemy(-300, 230, 60);*/
 //var enemy6 = new Enemy(100, 230, 150);
 
-var enemy1 = new Enemy( (Math.floor((Math.random() * -500) + 1) ),60, 120);
-var enemy2 = new Enemy( (Math.floor((Math.random() * -500) + 1) ),145, 90);
-var enemy3 = new Enemy( (Math.floor((Math.random() * -500) + 1) ),60, 80);
-var enemy4 = new Enemy( (Math.floor((Math.random() * -500) + 1) ),145, 70);
-var enemy5 = new Enemy( (Math.floor((Math.random() * -500) + 1) ),230, 80);
+var enemy1 = new Enemy( (Math.floor((Math.random() * -600) + 1) ),60, 120);
+var enemy2 = new Enemy( (Math.floor((Math.random() * -500) + 1) ),145, 100);
+var enemy3 = new Enemy( (Math.floor((Math.random() * -400) + 1) ),60, 80);
+var enemy4 = new Enemy( (Math.floor((Math.random() * -300) + 1) ),145, 70);
+var enemy5 = new Enemy( (Math.floor((Math.random() * -200) + 1) ),230, 90);
 
 
 var allEnemies = [
@@ -215,10 +236,3 @@ document.addEventListener('keyup', function(e) {
     player.handleInput(allowedKeys[e.keyCode]);
 });
 
-// Set up listener for HTML button click
-/*
-var restartButton = document.getElementById('restartButton');
-restartButton.addEventListener('click', function(e) {
-    player.resetGameVars();
-});
-*/
