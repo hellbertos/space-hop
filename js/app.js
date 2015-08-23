@@ -38,7 +38,6 @@ Enemy.prototype.render = function() {
 // Set up an array of possible positions
 var itemPosX = [0, 100, 200, 300, 400];
 var itemPosY = [60, 145];
-var howLongItem;
 
 var Item = function(x,y) {
     this.x = x;
@@ -81,11 +80,10 @@ Item.prototype.deActivate = function() {
     this.active = false;
 };
 
-Item.prototype.update = function(howLongItem) {
+Item.prototype.update = function() {
     if(gameState === true && this.active === true) {
         // Generate a random number of cycles for gem to remain on screen
         this.count += 1;
-        console.log("Let us try this.count -> "+this.count);
         if(this.count === this.duration) {
             item.deActivate();
         }
@@ -137,7 +135,7 @@ Player.prototype.update = function(xMod, yMod) {
         // Check player position to see if they achived the top row
         // to increase score and return avitar to beginning tile
         if (yMod && this.y === -13) {
-            player.score();
+            player.score(50);
             player.reset();
         }
     } else {
@@ -228,8 +226,8 @@ Player.prototype.loseLife = function() {
     }
 };
 
-Player.prototype.score = function() {
-    this.points +=50;
+Player.prototype.score = function(points) {
+    this.points += points;
     var scoreSpan = document.getElementById('theScore');
     scoreSpan.innerHTML = this.points;
 };
@@ -239,6 +237,7 @@ Player.prototype.score = function() {
 Player.prototype.collisionDectect = function() {
     for(var i = 0; i < allEnemies.length; i++) {
         if ( ( Math.round( allEnemies[i].x) >= this.x -70 &&  Math.round( allEnemies[i].x) <= this.x + 70) &&  (this.y === Math.round( allEnemies[i].y) + 12 ) ) {
+            player.score(-50);
             player.loseLife();
             player.reset();
         }
@@ -248,8 +247,7 @@ Player.prototype.collisionDectect = function() {
 // Check for collision with gem
 Player.prototype.gemDetection = function() {
     if(this.x === item.x && this.y === item.y + 12) {
-        this.points += 50;
-        player.score();
+        player.score(100);
         item.deActivate();
     }
 };
@@ -274,11 +272,22 @@ Player.prototype.reset = function() {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-var enemy1 = new Enemy( (Math.floor((Math.random() * -600) + 1) ),60, 120);
-var enemy2 = new Enemy( (Math.floor((Math.random() * -500) + 1) ),145, 100);
-var enemy3 = new Enemy( (Math.floor((Math.random() * -400) + 1) ),60, 80);
-var enemy4 = new Enemy( (Math.floor((Math.random() * -300) + 1) ),145, 70);
-var enemy5 = new Enemy( (Math.floor((Math.random() * -200) + 1) ),230, 90);
+
+// Generate some random speeds for enemys
+function getRandomSpeed(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Generate some random starting points for enemys
+function getRandomStart(baseNum) {
+    return Math.floor((Math.random() * -baseNum) + 1)
+}
+
+var enemy1 = new Enemy( getRandomStart(600),60, getRandomSpeed(115, 125));
+var enemy2 = new Enemy( getRandomStart(100),145, getRandomSpeed(100, 110));
+var enemy3 = new Enemy( getRandomStart(400),60, getRandomSpeed(85, 95));
+var enemy4 = new Enemy( getRandomStart(400),145, getRandomSpeed(60, 80));
+var enemy5 = new Enemy( getRandomStart(200),230, getRandomSpeed(80, 100));
 
 var allEnemies = [
         enemy1,
