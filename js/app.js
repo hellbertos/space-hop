@@ -1,4 +1,7 @@
+// set inital gameState to true (which equals actively update enemy positions)
 var gameState = true;
+
+// Create Enemy Class - thx Udacians
 var Enemy = function(x,y, speedMulti) {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
@@ -35,10 +38,19 @@ Enemy.prototype.render = function() {
 };
 
 // Item Class for bonus gems
-// Set up an array of possible positions
+
+// Set up an array of possible positions for the gems when they are spawned
 var itemPosX = [0, 100, 200, 300, 400];
 var itemPosY = [60, 145];
 
+//Create Item Class
+// NOTES:
+// -- this.active sets the state of the gem; true means the graphic is on-screen and
+//    can be interacted with
+// -- this.duration is generated at time of spawning (item.spawn) to determine how long
+//    it should remain on-screen
+// -- this.count is an incrementor used to count off against this.duration to create an
+//    equality which will trigger removal from the area of play.
 var Item = function(x,y) {
     this.x = x;
     this.y = y;
@@ -48,16 +60,20 @@ var Item = function(x,y) {
     this.count = 0;
 }
 
+// Check to see if there is a gem on screen already
+// If not, spawn a new gem
 Item.prototype.isSpawned = function(isActive) {
     if(isActive === false) {
         item.spawn();
     }
 };
 
+// Spawn a gem at a random spot across the grid (x) the grid only in rows 4 and 5 (y) to
+// enhance difficulty and only allow it for a random period of time (this.duration).
 Item.prototype.spawn = function() {
     var spawnItem = Math.floor(Math.random()*10000);
     if(spawnItem > 9950) {
-        // Set the active state of the item to true
+        // Set the active state of the item to true so multiple gems aren't spawned
         this.active = true;
 
         // Set duration of gem
@@ -74,12 +90,14 @@ Item.prototype.spawn = function() {
         }
 };
 
+// Remove the gem from the field of play and set its active state to false
 Item.prototype.deActivate = function() {
     this.x = -100;
     this.count = 0;
     this.active = false;
 };
 
+// Update the gem's this.count variable to determine when to deactivate it
 Item.prototype.update = function() {
     if(gameState === true && this.active === true) {
         // Generate a random number of cycles for gem to remain on screen
@@ -90,6 +108,7 @@ Item.prototype.update = function() {
     }
 };
 
+// Draw the gem on-screen
 Item.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
@@ -98,6 +117,9 @@ Item.prototype.render = function() {
 // This class requires an update(), render() and
 // a handleInput() method.
 
+// Create Player Class
+// NOTES:
+// -- None. Seems pretty self-explanatory
 var Player = function(x, y, points, lives) {
     this.sprite = 'images/char-space-naut.png';
     this.x = x;
@@ -107,6 +129,11 @@ var Player = function(x, y, points, lives) {
     this.hiScore = 0;
 };
 
+// If the player character moves (i.e. a control key is pressed) test to make sure it is within
+// the game boundries and, if so, move to the next tile. If not, do nothing.
+// NOTE: the logic is wrapped in an if/else statement testing for gameState to whether or not the game
+// engine should continue updating the x,y coordinates of the enemies or just redraw them in the same
+// place (i.e. "freezing game play")
 Player.prototype.update = function(xMod, yMod) {
     if( gameState === true ) {
         if (xMod){
@@ -127,7 +154,7 @@ Player.prototype.update = function(xMod, yMod) {
         player.collisionDectect();
 
         // Check to see if a gem is already spawned then update regardless
-        // and check for player collision with gem -> gemDetection()
+        // and check for a player collision with a gem -> gemDetection()
         item.isSpawned(item.active);
         item.update();
         player.gemDetection();
@@ -143,10 +170,12 @@ Player.prototype.update = function(xMod, yMod) {
     }
 };
 
+// Draw player avitar on-screen
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
+// Check which key is pressed and update the appropriate variable
 Player.prototype.handleInput = function(keyPress) {
     switch (keyPress) {
         case "left":
@@ -173,7 +202,7 @@ Player.prototype.handleInput = function(keyPress) {
 };
 
 // Rewrite the the starting values of score and lives to
-// display in browser then call gameOn() to reset game state
+// display in the DOM then call gameOn() to reset game state
 // to true which un-freezes the game
 Player.prototype.resetGame = function() {
     this.points = 0;
@@ -202,14 +231,14 @@ Player.prototype.replay = function() {
         });
 };
 
-// Remove the restart button then un-freeze the game
+// Remove the restart button then un-freeze the game by inverting gameState
 Player.prototype.gameOn = function() {
     var removeButton = document.getElementById('button');
     removeButton.parentNode.removeChild(removeButton);
     gameState = !gameState;
 };
 
-// Remove one life value and for game end; set High Score if applicable
+// Remove one life value and check for game end; set High Score if applicable and draw it to the DOM
 Player.prototype.loseLife = function() {
     this.lives -= 1;
     var livesSpan = document.getElementById('livesRemaining');
@@ -226,6 +255,7 @@ Player.prototype.loseLife = function() {
     }
 };
 
+// Accept the number of points to add or subract from score and draw it to the DOM
 Player.prototype.score = function(points) {
     this.points += points;
     var scoreSpan = document.getElementById('theScore');
@@ -252,22 +282,22 @@ Player.prototype.gemDetection = function() {
     }
 };
 
-// TODO: hook up this Game Over Method!!!!
-Player.prototype.gameOver = function() {
-    ctx.font = "50px Impact";
-    ctx.fillStyle = "#ffffff";
-    ctx.strokeStyle = "#ff0000";
-    ctx.lineWidth = 2;
-    ctx.textAlign = "center";
-    ctx.fillText("GAME OVER!!",260,300);
-    ctx.strokeText("GAME OVER!!",260,300);
-};
-
 // Redraws player at starting tile when player collides with an enemy
 Player.prototype.reset = function() {
     this.x = 200;
     this.y = 412;
 };
+
+
+// TODO: hook up a Game Over message or screen!
+// TODO: Figure out the start screen
+// TODO: Possibly add in game levels adding higher-speeds? More aliens? Possibly add different
+//       tiles to the space-station deck for a new look or friendly aliens on the space station
+//       deck waiting for you to join them; perhaps they would offer an extra life like a gem
+//       offers more points.
+// TODO: Figure out a "lag" or "stall" so when Spacenaut reaches the goal, it doesn't instantly disappear
+//       back to the starting tile. Perhaps add a message like Space Station Reached!
+
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
@@ -289,6 +319,7 @@ var enemy3 = new Enemy( getRandomStart(400),60, getRandomSpeed(85, 95));
 var enemy4 = new Enemy( getRandomStart(400),145, getRandomSpeed(60, 80));
 var enemy5 = new Enemy( getRandomStart(200),230, getRandomSpeed(80, 100));
 
+// Add all enemies to one array
 var allEnemies = [
         enemy1,
         enemy2,
@@ -297,8 +328,10 @@ var allEnemies = [
         enemy5
     ];
 
+// Crate a new player with starting-x, starting-y, starting score, starting lives
 var player = new Player(200,412, 0, 3);
 
+// Create a new gem
 var item = new Item(-200, 200);
 
 // This listens for key presses and sends the keys to your
