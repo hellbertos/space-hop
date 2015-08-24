@@ -265,7 +265,7 @@ Player.prototype.loseLife = function() {
             hiScoreSpan.innerHTML = this.hiScore;
         }
         gameState = false;
-        player.replay();
+        this.replay();
     }
 };
 
