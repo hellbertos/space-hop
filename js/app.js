@@ -1,8 +1,24 @@
+/**
+    *@desc This code moves enemy avatars(1) across defined rows while allowing a keyboard controled player avitar(2)
+    *to move(3) across the grid (defined in engine.js) to attain points(4) once the final row is reached then
+    *resets(5) the player avitar to its startng point. It detects collisions(6) between player and enemy avitars
+    *and removes point and life values (7) until zero lives remain at which time game play is terminated(8). The Player
+    *can increase score by collecting randomly spawned and distributed gem avitars(9,10).
+    *This code describes 3 distinct classes: Enemy, Item and Player
+    *Some methods for functionality described above are: 1 - enemy.update(), 2 - handleInput(), 3 - player.update(),
+    *4 - player.score,  5 - player.reset(), 6 - player.collisionDetect(), 7 - player.loseLife(), 8 - player.replay(),
+    *9 - item.spawn(), 10 - gemDetection().
+    *@title Space Hop  - Frogger-like game for the browser and FEND Program
+    *@author James Ruggieri
+    *@required resources.js, engine.js, style.css, index.html, image assets,
+*/
+
+"use strict";
 // set inital gameState to true (which equals actively update enemy positions)
 var gameState = true;
 
 // Create Enemy Class - thx Udacians
-var Enemy = function(x,y, speedMulti) {
+var Enemy = function(x, y, speedMulti) {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
 
@@ -20,16 +36,16 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-    if(gameState === true) {
-        if(this.x >= 562) {
+    if (gameState === true) {
+        if (this.x >= 562) {
             this.x = -70;
         }
-        this.x = this.x + (dt*this.speedMulti);
+        this.x = this.x + (dt * this.speedMulti);
         this.y = this.y;
-        } else {
-           this.x = this.x;
-           this.y = this.y;
-        }
+    } else {
+        this.x = this.x;
+        this.y = this.y;
+    }
 };
 
 // Draw the enemy on the screen, required method for game
@@ -51,19 +67,19 @@ var itemPosY = [60, 145];
 //    it should remain on-screen
 // -- this.count is an incrementor used to count off against this.duration to create an
 //    equality which will trigger removal from the area of play.
-var Item = function(x,y) {
+var Item = function(x, y) {
     this.x = x;
     this.y = y;
     this.sprite = 'images/gem-green.png';
     this.active = false;
     this.duration = 0;
     this.count = 0;
-}
+};
 
 // Check to see if there is a gem on screen already
 // If not, spawn a new gem
 Item.prototype.isSpawned = function(isActive) {
-    if(isActive === false) {
+    if (isActive === false) {
         item.spawn();
     }
 };
@@ -71,8 +87,8 @@ Item.prototype.isSpawned = function(isActive) {
 // Spawn a gem at a random spot across the grid (x) the grid only in rows 4 and 5 (y) to
 // enhance difficulty and only allow it for a random period of time (this.duration).
 Item.prototype.spawn = function() {
-    var spawnItem = Math.floor(Math.random()*10000);
-    if(spawnItem > 9950) {
+    var spawnItem = Math.floor(Math.random() * 10000);
+    if (spawnItem > 9950) {
         // Set the active state of the item to true so multiple gems aren't spawned
         this.active = true;
 
@@ -87,7 +103,7 @@ Item.prototype.spawn = function() {
         this.x = itemPosX[xCoord];
         this.y = itemPosY[yCoord];
         item.render();
-        }
+    }
 };
 
 // Remove the gem from the field of play and set its active state to false
@@ -99,10 +115,10 @@ Item.prototype.deActivate = function() {
 
 // Update the gem's this.count variable to determine when to deactivate it
 Item.prototype.update = function() {
-    if(gameState === true && this.active === true) {
+    if (gameState === true && this.active === true) {
         // Generate a random number of cycles for gem to remain on screen
         this.count += 1;
-        if(this.count === this.duration) {
+        if (this.count === this.duration) {
             item.deActivate();
         }
     }
@@ -135,38 +151,38 @@ var Player = function(x, y, points, lives) {
 // engine should continue updating the x,y coordinates of the enemies or just redraw them in the same
 // place (i.e. "freezing game play")
 Player.prototype.update = function(xMod, yMod) {
-    if( gameState === true ) {
-        if (xMod){
-        if( (this.x === 0 && xMod < 0) || (this.x === 400 && xMod > 0) ) {
-            this.x === this.x;
-        } else {
-            this.x = this.x + xMod;
+    if (gameState === true) {
+        if (xMod) {
+            if ((this.x === 0 && xMod < 0) || (this.x === 400 && xMod > 0)) {
+                this.x = this.x;
+            } else {
+                this.x = this.x + xMod;
             }
         }
         if (yMod) {
-            if( (this.y === 412 && yMod > 0) || (this.y === -13 && yMod < 0) ){
-                this.y === this.y;
+            if ((this.y === 412 && yMod > 0) || (this.y === -13 && yMod < 0)) {
+                this.y = this.y;
             } else {
                 this.y = this.y + yMod;
             }
         }
         // Check for a collision with enemies
-        player.collisionDectect();
+        this.collisionDectect();
 
         // Check to see if a gem is already spawned then update regardless
         // and check for a player collision with a gem -> gemDetection()
         item.isSpawned(item.active);
         item.update();
-        player.gemDetection();
+        this.gemDetection();
 
         // Check player position to see if they achived the top row
         // to increase score and return avitar to beginning tile
         if (yMod && this.y === -13) {
-            player.score(50);
-            player.reset();
+            this.score(50);
+            this.reset();
         }
     } else {
-        player.render();
+        this.render();
     }
 };
 
@@ -177,26 +193,24 @@ Player.prototype.render = function() {
 
 // Check which key is pressed and update the appropriate variable
 Player.prototype.handleInput = function(keyPress) {
+    var changeX = 0;
+    var changeY = 0;
     switch (keyPress) {
         case "left":
-            var changeX = -100;
-            var changeY = 0;
-            player.update(changeX, changeY);
+            changeX = -100;
+            this.update(changeX, changeY);
             break;
         case "up":
-            var changeX = 0;
-            var changeY = -85;
-            player.update(changeX, changeY);
+            changeY = -85;
+            this.update(changeX, changeY);
             break;
         case "right":
-            var changeX = 100;
-            var changeY = 0;
-            player.update(changeX, changeY);
+            changeX = 100;
+            this.update(changeX, changeY);
             break;
         case "down":
-            var changeX = 0;
-            var changeY = 85;
-            player.update(changeX, changeY);
+            changeY = 85;
+            this.update(changeX, changeY);
             break;
     }
 };
@@ -216,19 +230,19 @@ Player.prototype.resetGame = function() {
     var livesSpan = document.getElementById('livesRemaining');
     livesSpan.innerHTML = this.lives;
 
-    player.gameOn();
+    this.gameOn();
 };
 
 // Add a restart button to the dom then listen for click
 // to reset game variables and fire it back up
 Player.prototype.replay = function() {
     var refireButton = document.getElementById('restartContain');
-    refireButton.innerHTML='<span id="button">REPLAY</span>';
+    refireButton.innerHTML = '<span id="button">REPLAY</span>';
 
     var restartButton = document.getElementById('restartContain');
-    restartButton.addEventListener('click', function(e) {
-            player.resetGame();
-        });
+    restartButton.addEventListener('click', function() {
+        player.resetGame();
+    });
 };
 
 // Remove the restart button then un-freeze the game by inverting gameState
@@ -243,9 +257,9 @@ Player.prototype.loseLife = function() {
     this.lives -= 1;
     var livesSpan = document.getElementById('livesRemaining');
     livesSpan.innerHTML = this.lives;
-    if(player.lives === 0) {
+    if (this.lives === 0) {
         // Check for high score and set if necessary
-        if(this.points > this.hiScore) {
+        if (this.points > this.hiScore) {
             this.hiScore = this.points;
             var hiScoreSpan = document.getElementById('hiScore');
             hiScoreSpan.innerHTML = this.hiScore;
@@ -265,19 +279,19 @@ Player.prototype.score = function(points) {
 // Check for a collision between player and enemy.
 // Uses a range of -70 to +70 to account for the approximate width of the enemy
 Player.prototype.collisionDectect = function() {
-    for(var i = 0; i < allEnemies.length; i++) {
-        if ( ( Math.round( allEnemies[i].x) >= this.x -70 &&  Math.round( allEnemies[i].x) <= this.x + 70) &&  (this.y === Math.round( allEnemies[i].y) + 12 ) ) {
-            player.score(-50);
-            player.loseLife();
-            player.reset();
+    for (var i = 0; i < allEnemies.length; i++) {
+        if ((Math.round(allEnemies[i].x) >= this.x - 70 && Math.round(allEnemies[i].x) <= this.x + 70) && (this.y === Math.round(allEnemies[i].y) + 12)) {
+            this.score(-50);
+            this.loseLife();
+            this.reset();
         }
     }
 };
 
 // Check for collision with gem
 Player.prototype.gemDetection = function() {
-    if(this.x === item.x && this.y === item.y + 12) {
-        player.score(100);
+    if (this.x === item.x && this.y === item.y + 12) {
+        this.score(100);
         item.deActivate();
     }
 };
@@ -310,26 +324,26 @@ function getRandomSpeed(min, max) {
 
 // Generate some random starting points for enemys
 function getRandomStart(baseNum) {
-    return Math.floor((Math.random() * -baseNum) + 1)
+    return Math.floor((Math.random() * -baseNum) + 1);
 }
 
-var enemy1 = new Enemy( getRandomStart(600),60, getRandomSpeed(115, 125));
-var enemy2 = new Enemy( getRandomStart(100),145, getRandomSpeed(100, 110));
-var enemy3 = new Enemy( getRandomStart(400),60, getRandomSpeed(85, 95));
-var enemy4 = new Enemy( getRandomStart(400),145, getRandomSpeed(60, 80));
-var enemy5 = new Enemy( getRandomStart(200),230, getRandomSpeed(80, 100));
+var enemy1 = new Enemy(getRandomStart(600), 60, getRandomSpeed(115, 125));
+var enemy2 = new Enemy(getRandomStart(100), 145, getRandomSpeed(100, 110));
+var enemy3 = new Enemy(getRandomStart(400), 60, getRandomSpeed(85, 95));
+var enemy4 = new Enemy(getRandomStart(400), 145, getRandomSpeed(60, 80));
+var enemy5 = new Enemy(getRandomStart(200), 230, getRandomSpeed(80, 100));
 
 // Add all enemies to one array
 var allEnemies = [
-        enemy1,
-        enemy2,
-        enemy3,
-        enemy4,
-        enemy5
-    ];
+    enemy1,
+    enemy2,
+    enemy3,
+    enemy4,
+    enemy5
+];
 
 // Crate a new player with starting-x, starting-y, starting score, starting lives
-var player = new Player(200,412, 0, 3);
+var player = new Player(200, 412, 0, 3);
 
 // Create a new gem
 var item = new Item(-200, 200);
